@@ -5,7 +5,9 @@
 
 ## Overview
 
-This repository contains a harmonized, analysis-ready, multi-scale weekly dataset linking **dengue cases** with **concurrent rainfall measurements** at three nested geographic levels:
+This repository contains a harmonized, analysis-ready, multi-scale weekly dataset linking **dengue cases** with **concurrent rainfall measurements** across multiple geographic levels, along with supporting spatial datasets (shapefiles and CSVs) for mapping and subnational analysis.
+
+**Core Dataset**
 
 | Sheet | Geographic Scope | Period | Records |
 |---|---|---|---|
@@ -14,6 +16,16 @@ This repository contains a harmonized, analysis-ready, multi-scale weekly datase
 | **Country Data** | 8 endemic countries | 2016–2025 | 3,215 |
 
 **Total: 11,102 complete, week-resolution records.**
+
+**Additional Spatial Data**
+* Barangay-level shapefile (QC)
+* Regional-level shapefile (Philippines)
+* CSV counterparts for both spatial datasets
+These enable geospatial visualization, hotspot mapping, and spatial epidemiological analysis.
+
+---
+
+## Data Sources
 
 The dataset integrates surveillance data from four primary sources:
 
@@ -30,15 +42,18 @@ The dataset integrates surveillance data from four primary sources:
 dengue-rainfall-dataset/
 │
 ├── data/
-│   └── Dengue-Rainfall_Dataset.xlsx      # Main dataset (4 sheets)
-│   └── QC_YearlyData-Barangay(CSV).csv
-│   └── PH_REGIONS-DC.csv
+│   ├── Dengue-Rainfall_Dataset.xlsx      # Main dataset (3 sheets)
+│   ├── QC_YearlyData-Barangay(CSV).csv   # Barangay-level yearly dengue cases
+│   ├── PH_REGIONS-DC.csv                 # Regional yearly dengue cases
+│   │
+│   ├── DC_Regional-Brgy.7z.001          # QC barangay to Regional shapefile
+│   ├── DC_Regional-Brgy.7z.002          # QC barangay to Regional shapefile
 │
 ├── scripts/
-│   └── Dengue-Rainfall_RCodes.R            # Full analytics replication script 
+│   └── Dengue-Rainfall_RCodes.R          # Full analytics replication script
 │
-├── CITATION.cff                           # Citation metadata
-└── README.md                              # This file
+├── CITATION.cff
+└── README.md
 ```
 
 ---
@@ -85,6 +100,58 @@ Weekly dengue and rainfall data for **8 dengue-endemic countries**.
 | `DC_OPENDENGUE` | Weekly dengue cases | OpenDengue |
 
 Countries included: **Brazil, Colombia, Mexico, Peru, Philippines, Singapore, Sri Lanka, Taiwan**
+
+---
+
+## Spatial Datasets
+
+**1. Quezon City Barangay to Regional Shapefiles**
+
+**File:** DC_Regional-Brgy.7z.001 / DC_Regional-Brgy.7z.002
+
+**Quezon City Barangay**
+
+| Field      | Description                      |
+| ---------- | -------------------------------- |
+| ADM4_PCODE | PSA geographic code              |
+| BRGY       | Barangay name                    |
+| DC_YEAR    | Yearly dengue cases per barangay |
+| DC_MEAN    | Mean cases (2010–2025)           |
+
+**Philippine Regional**
+
+| Field      | Description                       |
+| ---------- | --------------------------------- |
+| ADM1_PCODE | PSA geographic code               |
+| Region     | Region name                       |
+| DC_YEAR    | Yearly dengue cases               |
+| DC_MEAN    | Mean cases (2016–2019, 2022–2025) |
+
+**Note:** Data gaps (2020–2021) are consistent with the HDX dataset limitations.
+
+
+**2. Corresponding CSV Files**
+
+**File:** QC_YearlyData-Barangay(CSV).csv 
+
+This CSV file contains contains 142 barangay records.
+
+| ADM4_PCODE   | BRGY            | DC_2010 | DC_2011 | DC_2012 |
+| ------------ | --------------- | ------- | ------- | ------- |
+| PH1307404001 | Alicia          | 34      | 28      | 52      |
+| PH1307404002 | Amihan          | 4       | 16      | 12      |
+| PH1307404003 | Apolonio Samson | 64      | 86      | 129     |
+| PH1307404004 | Aurora          | 10      | 17      | 10      |
+| PH1307404005 | Baesa           | 105     | 154     | 171     |
+
+**File:** PH_REGIONS-DC.csv
+
+| ADM1_PCODE | Region                     | DC_2016 | DC_2017 | DC_2018 |
+| ---------- | -------------------------- | ------- | ------- | ------- |
+| PH01       | Region I (Ilocos Region)   | 8281    | 8284    | 14804   |
+| PH02       | Region II (Cagayan Valley) | 3891    | 5327    | 17926   |
+| PH03       | Region III (Central Luzon) | 20989   | 24935   | 31759   |
+| PH04       | Region IV-A (CALABARZON)   | 24282   | 22403   | 30293   |
 
 ---
 
@@ -146,7 +213,7 @@ cat("Country Data:  ", nrow(df_cty), "records\n")
 source("scripts/Dengue-Rainfall_RCodes.R")
 ```
 
-This script reproduces:
+This script produces:
 1. Tables 3a–3c: zero-lag Pearson and Spearman correlations
 2. Tables 5a–5c: lagged cross-correlation analysis
 3. Section 4.4: overdispersion analysis
