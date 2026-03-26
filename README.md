@@ -143,7 +143,7 @@ cat("Country Data:  ", nrow(df_cty), "records\n")
 # Run the Full Replication Script
 
 ```R
-source("scripts/full_analytics_replication.R")
+source("scripts/Dengue-Rainfall_RCodes.R")
 ```
 
 This script reproduces:
