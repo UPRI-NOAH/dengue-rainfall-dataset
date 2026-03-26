@@ -118,7 +118,7 @@ Countries included: **Brazil, Colombia, Mexico, Peru, Philippines, Singapore, Sr
 | DC_YEAR    | Yearly dengue cases per barangay |
 | DC_MEAN    | Mean cases (2010–2025)           |
 
-**Philippine Regional**
+**Philippine Regions**
 
 | Field      | Description                       |
 | ---------- | --------------------------------- |
