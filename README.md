@@ -31,6 +31,8 @@ dengue-rainfall-dataset/
 │
 ├── data/
 │   └── Dengue-Rainfall_Dataset.xlsx      # Main dataset (4 sheets)
+│   └── QC_YearlyData-Barangay(CSV).csv
+│   └── PH_REGIONS-DC.csv
 │
 ├── scripts/
 │   └── Dengue-Rainfall_RCodes.R            # Full analytics replication script 
@@ -41,7 +43,7 @@ dengue-rainfall-dataset/
 
 ---
 
-## Dataset Description
+## Dengue-Rainfall Dataset Description
 
 ### Sheet 1 — QC Data
 
@@ -152,86 +154,96 @@ This script reproduces:
 5. Supplementary outputs: seasonality index, annual summaries, and country totals
 6. Figures 1–8: QC, regional, and country-level visualizations
 
-### Sample: Basic Correlation Analysis
+### Sample: Overdispersion Analysis
 
-To run a minimal example before executing the full script:
+To check variance-to-mean ratios and assess whether Negative Binomial (NB) regression is recommended:
 
 ```R
-library(readxl)
 library(dplyr)
+library(MASS)   # for glm.nb
 
 PATH <- "data/Dengue-Rainfall_Dataset.xlsx"
 
-df_qc  <- read_excel(PATH, sheet = "QC Data") %>% arrange(YR, WN)
-df_reg <- read_excel(PATH, sheet = "Regional Data") %>% arrange(REGION, YR, WN)
+# Load datasets
+df_qc  <- readxl::read_excel(PATH, sheet = "QC Data") %>% arrange(YR, WN)
+df_reg <- readxl::read_excel(PATH, sheet = "Regional Data") %>% arrange(REGION, YR, WN)
+df_cty <- readxl::read_excel(PATH, sheet = "Country Data") %>% arrange(COUNTRY, YR, WN)
 
-# Zero-lag correlation: QC dengue vs NASA rainfall
-cor.test(df_qc$DC_QC, df_qc$RF_NASA, method = "pearson")
-
-# Lagged correlation: 4-week lag
-cor.test(
-  df_qc$DC_QC[5:nrow(df_qc)],
-  df_qc$RF_NASA[1:(nrow(df_qc) - 4)],
-  method = "pearson"
+# Overall overdispersion
+overdispersion <- data.frame(
+  Scale = c("QC Data (DC_QC)",
+            "Regional Data (DC_HDX)",
+            "Country Data (DC_OPENDENGUE)"),
+  N     = c(nrow(df_qc), nrow(df_reg), nrow(df_cty)),
+  Mean  = round(c(mean(df_qc$DC_QC),
+                  mean(df_reg$DC_HDX),
+                  mean(df_cty$DC_OPENDENGUE)), 2),
+  SD    = round(c(sd(df_qc$DC_QC),
+                  sd(df_reg$DC_HDX),
+                  sd(df_cty$DC_OPENDENGUE)), 2),
+  Variance = round(c(var(df_qc$DC_QC),
+                     var(df_reg$DC_HDX),
+                     var(df_cty$DC_OPENDENGUE)), 1),
+  VM_ratio = round(c(var(df_qc$DC_QC)/mean(df_qc$DC_QC),
+                     var(df_reg$DC_HDX)/mean(df_reg$DC_HDX),
+                     var(df_cty$DC_OPENDENGUE)/mean(df_cty$DC_OPENDENGUE)), 1),
+  Recommendation = "NB model recommended",
+  stringsAsFactors = FALSE
 )
 
-# Regional zero-lag correlations
-regional_corr <- bind_rows(
-  lapply(sort(unique(df_reg$REGION)), function(r) {
-    g <- dplyr::filter(df_reg, REGION == r)
-    ct <- cor.test(g$DC_HDX, g$RF_HDX, method = "pearson")
-    data.frame(
-      REGION = r,
-      Pearson_r = round(as.numeric(ct$estimate), 3),
-      p_value = ct$p.value
-    )
-  })
-)
+print(overdispersion)
 
-print(regional_corr)
-```
+# Optional: Formal LR test for QC
+if (requireNamespace("MASS", quietly = TRUE)) {
+  m_pois <- glm(DC_QC ~ RF_NASA, data = df_qc, family = poisson)
+  m_nb   <- suppressWarnings(MASS::glm.nb(DC_QC ~ RF_NASA, data = df_qc))
+  lr_val <- 2 * (as.numeric(logLik(m_nb)) - as.numeric(logLik(m_pois)))
+  lr_p   <- pchisq(lr_val, df = 1, lower.tail = FALSE)
+  
+  cat("\n-- LR Test Poisson vs NB (QC: DC_QC ~ RF_NASA) --\n")
+  cat(sprintf("LR statistic = %.2f, df = 1, p = %.4e\n", lr_val, lr_p))
+  cat(sprintf("NB theta (dispersion) = %.3f\n", m_nb$theta))
+  cat("NB model is significantly better than Poisson (p < 0.001)\n")
+}
 
-### Plot Dengue Seasonality (QC)
-
-```R
-library(readxl)
-library(dplyr)
-library(ggplot2)
-
-PATH <- "data/Dengue-Rainfall_Dataset.xlsx"
-
-df_qc <- read_excel(PATH, sheet = "QC Data") %>% arrange(YR, WN)
-
-seasonal <- df_qc %>%
-  filter(!YR %in% c(2020, 2021)) %>%
-  group_by(WN) %>%
+# Regional overdispersion
+region_overdisp <- df_reg %>%
+  group_by(REGION) %>%
   summarise(
-    mean_cases = mean(DC_QC, na.rm = TRUE),
-    sd_cases   = sd(DC_QC, na.rm = TRUE),
-    .groups    = "drop"
-  )
+    N        = n(),
+    Mean     = round(mean(DC_HDX), 2),
+    SD       = round(sd(DC_HDX), 2),
+    Variance = round(var(DC_HDX), 1),
+    VM_ratio = round(var(DC_HDX)/mean(DC_HDX), 1),
+    Recommendation = "NB model recommended",
+    .groups = "drop"
+  ) %>%
+  arrange(desc(VM_ratio))
 
-dir.create("figures", showWarnings = FALSE)
+cat("\n-- Regional Overdispersion --\n")
+print(as.data.frame(region_overdisp), row.names = FALSE)
 
-ggplot(seasonal, aes(x = WN, y = mean_cases)) +
-  annotate("rect", xmin = 22, xmax = 44, ymin = -Inf, ymax = Inf,
-           fill = "blue", alpha = 0.08) +
-  geom_ribbon(aes(
-    ymin = pmax(mean_cases - sd_cases, 0),
-    ymax = mean_cases + sd_cases
-  ), alpha = 0.15, fill = "#C0392B") +
-  geom_line(linewidth = 1.2, colour = "#C0392B") +
-  labs(
-    title = "Average Dengue Seasonality - Quezon City (2010-2025, excl. 2020-2021)",
-    x = "Epidemiological Week",
-    y = "Mean Weekly Dengue Cases"
-  ) +
-  theme_classic()
+# Country overdispersion
+country_overdisp <- df_cty %>%
+  group_by(COUNTRY) %>%
+  summarise(
+    N        = n(),
+    Mean     = round(mean(DC_OPENDENGUE), 2),
+    SD       = round(sd(DC_OPENDENGUE), 2),
+    Variance = round(var(DC_OPENDENGUE), 1),
+    VM_ratio = round(var(DC_OPENDENGUE)/mean(DC_OPENDENGUE), 1),
+    Recommendation = "NB model recommended",
+    .groups = "drop"
+  ) %>%
+  arrange(desc(VM_ratio))
+
+cat("\n-- Country Overdispersion --\n")
+print(as.data.frame(country_overdisp), row.names = FALSE)
 ```
 
 ---
 
-## Key Dataset Characteristics
+## Key Dengue-Rainfall Dataset Characteristics
 Quezon City (QC) Data Summary
 
 The QC Data sheet contains 832 weekly observations spanning 2010–2025 (52 epidemiological weeks per year). It includes weekly dengue case counts from the Quezon City Epidemiology and Surveillance Division (DC_QC) and weekly NASA satellite-derived rainfall totals (RF_NASA).
