@@ -50,9 +50,10 @@ dengue-rainfall-dataset/
 │   ├── DC_Regional-Brgy.7z.002          # QC barangay to Regional shapefile
 │
 ├── scripts/
-│   └── Dengue-Rainfall_RCodes.R          # Full analytics replication script
+│   ├── Dengue-Rainfall_Validation.R     # Full technical validation script
+│   ├── Dengue-Rainfall_RCodes.R         # Full analytics replication script
 │
-├── LICENSE                                # ODC-ODbL v1.0
+├── LICENSE                              # ODC-ODbL v1.0
 ├── CITATION.cff
 └── README.md
 ```
@@ -214,11 +215,11 @@ cat("Country Data:  ", nrow(df_cty), "records\n")
 source("scripts/Dengue-Rainfall_RCodes.R")
 ```
 
-This script produces:
-1. Tables 3a–3c: zero-lag Pearson and Spearman correlations
-2. Tables 5a–5c: lagged cross-correlation analysis
-3. Section 4.4: overdispersion analysis
-4. Section 4.5: COVID-19 suppression analysis
+This script produces the following analytics:
+1. Zero-lag Pearson and Spearman correlations
+2. Lagged cross-correlation analysis
+3. Overdispersion analysis
+4. COVID-19 suppression analysis
 5. Supplementary outputs: seasonality index, annual summaries, and country totals
 6. Figures 1–8: QC, regional, and country-level visualizations
 
