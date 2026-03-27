@@ -52,6 +52,7 @@ dengue-rainfall-dataset/
 ├── scripts/
 │   └── Dengue-Rainfall_RCodes.R          # Full analytics replication script
 │
+├── LICENSE                                # ODC-ODbL v1.0
 ├── CITATION.cff
 └── README.md
 ```
@@ -373,11 +374,17 @@ If you use this dataset, please cite:
 
 ---
 
-## Licence
+## License
 
-No formal licence has been assigned to this dataset yet.
+The dataset and associated scripts are released under the **Open Data Commons Open Database License (ODC-ODbL) v1.0**.
 
-For permissions regarding use, distribution, or adaptation, please contact the authors.
+You are free to share, distribute, and adapt the material for any purpose, provided that appropriate credit is given to **UP Resilience Institute – NOAH (UPRI-NOAH)** and its contributors.
+
+If you alter or build upon this dataset, you may only distribute the resulting database under the same license (ODC-ODbL v1.0).
+
+[![ODbL v1.0](https://opendatacommons.org/wp-content/uploads/odc_odbl_badge.png)](https://opendatacommons.org/licenses/odbl/1.0/)
+
+---
 
 ## Contact
 
@@ -385,7 +392,7 @@ For questions about the dataset, please open a GitHub Issue or contact:
 
 **Keanu John A. Pelitro***  
 [kapelitro@up.edu]  
-University of the Philippines Diliman
+UP Resilience Institute - Research and Creative Work
 
 ---
 
