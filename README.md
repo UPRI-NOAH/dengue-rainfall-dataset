@@ -383,7 +383,7 @@ You are free to share, distribute, and adapt the material for any purpose, provi
 
 If you alter or build upon this dataset, you may only distribute the resulting database under the same license (ODC-ODbL v1.0).
 
-[![ODbL v1.0](https://opendatacommons.org/wp-content/uploads/odc_odbl_badge.png)](https://opendatacommons.org/licenses/odbl/1.0/)
+[![ODbL v1.0]((https://opendatacommons.org/licenses/odbl/1.0/))]
 
 ---
 
