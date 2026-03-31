@@ -368,8 +368,8 @@ If you use this dataset, please cite:
   number  = {},
   pages   = {},
   year    = {2025},
-  doi     = {10.XXXX/XXXXXX},
-  url     = {https://doi.org/10.XXXX/XXXXXX}
+  doi     = {10.5281/zenodo.19347475},
+  url     = {https://doi.org/10.5281/zenodo.19347475}
 }
 ```
 
