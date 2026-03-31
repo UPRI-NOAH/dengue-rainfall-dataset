@@ -1,5 +1,5 @@
 # Dengue–Rainfall Dataset
-### Multi-Scale Weekly Dengue–Rainfall Dataset Across the Philippines and Endemic Countries (2010–2025)
+### Weekly Dengue Incidence Linked to Satellite Rainfall at City, Regional, and Country Scales
 
 ---
 
@@ -31,6 +31,7 @@ The dataset integrates surveillance data from four primary sources:
 
 - **QCESD** – Quezon City Epidemiology and Surveillance Division
 - **NASA** – National Aeronautics and Space Administration (satellite rainfall)
+- **DOH** – Department of Health
 - **HDX** – Philippines Subnational datasets, Humanitarian Data Exchange
 - **OpenDengue** – Global harmonised dengue surveillance database
 
@@ -84,7 +85,7 @@ Weekly dengue and rainfall data for **all 17 administrative regions** of the Phi
 | `REGION` | Region name (NCR, CAR, REGION I–XIII, MIMAROPA, BARMM) | — |
 | `YR` | Year | — |
 | `WN` | Epidemiological week | — |
-| `DC_HDX` | Weekly dengue cases | HDX Philippines Subnational |
+| `DC_DOH` | Weekly dengue cases | Deparment of Health |
 | `RF_HDX` | Weekly rainfall (mm) | HDX Philippines Subnational |
 
 > **Note:** Years 2020–2021 are absent from the HDX release for all regions (likely COVID-19 surveillance disruption).
@@ -241,20 +242,20 @@ df_cty <- readxl::read_excel(PATH, sheet = "Country Data") %>% arrange(COUNTRY, 
 # Overall overdispersion
 overdispersion <- data.frame(
   Scale = c("QC Data (DC_QC)",
-            "Regional Data (DC_HDX)",
+            "Regional Data (DC_DOH)",
             "Country Data (DC_OPENDENGUE)"),
   N     = c(nrow(df_qc), nrow(df_reg), nrow(df_cty)),
   Mean  = round(c(mean(df_qc$DC_QC),
-                  mean(df_reg$DC_HDX),
+                  mean(df_reg$DC_DOH),
                   mean(df_cty$DC_OPENDENGUE)), 2),
   SD    = round(c(sd(df_qc$DC_QC),
-                  sd(df_reg$DC_HDX),
+                  sd(df_reg$DC_DOH),
                   sd(df_cty$DC_OPENDENGUE)), 2),
   Variance = round(c(var(df_qc$DC_QC),
-                     var(df_reg$DC_HDX),
+                     var(df_reg$DC_DOH),
                      var(df_cty$DC_OPENDENGUE)), 1),
   VM_ratio = round(c(var(df_qc$DC_QC)/mean(df_qc$DC_QC),
-                     var(df_reg$DC_HDX)/mean(df_reg$DC_HDX),
+                     var(df_reg$DC_DOH)/mean(df_reg$DC_DOH),
                      var(df_cty$DC_OPENDENGUE)/mean(df_cty$DC_OPENDENGUE)), 1),
   Recommendation = "NB model recommended",
   stringsAsFactors = FALSE
@@ -280,10 +281,10 @@ region_overdisp <- df_reg %>%
   group_by(REGION) %>%
   summarise(
     N        = n(),
-    Mean     = round(mean(DC_HDX), 2),
-    SD       = round(sd(DC_HDX), 2),
-    Variance = round(var(DC_HDX), 1),
-    VM_ratio = round(var(DC_HDX)/mean(DC_HDX), 1),
+    Mean     = round(mean(DC_DOH), 2),
+    SD       = round(sd(DC_DOH), 2),
+    Variance = round(var(DC_DOH), 1),
+    VM_ratio = round(var(DC_DOH)/mean(DC_DOH), 1),
     Recommendation = "NB model recommended",
     .groups = "drop"
   ) %>%
@@ -348,7 +349,7 @@ Several important epidemiological patterns are captured in the QC time series:
 ---
 
 ## Known Limitations
-2. **Regional 2020–2021 gap:** HDX did not release regional data for these years; likely COVID-19-related.
+2. **Regional 2020–2021 gap:** No data available due to COVID-19.
 3. **QC 2020–2021 cases:** Likely under-reported due to health system disruption. Treat cautiously in trends.
 4. **Country-level RF:** Spatially averaged over entire countries; intra-country heterogeneity not captured.
 5. **Zero-lag only:** All correlations reported here are contemporaneous. Explore lagged associations for modelling.
@@ -361,15 +362,15 @@ If you use this dataset, please cite:
 
 ```bibtex
 @article{Matavia2025,
-  title   = {Multi-Scale Weekly Dengue--Rainfall Dataset Across the Philippines and Endemic Countries (2010--2025)},
+  title   = {Weekly Dengue Incidence Linked to Satellite Rainfall at City, Regional, and Country Scales},
   author  = {Matavia, Troy Owen and Pelitro, Keanu John and Manzano, Julia Fye and Soriano, Kylone and Bilbao, Klara and Garcia, Gereka Marie and Delos Angeles, Aira Joy and Lagmay, Alfredo Mahar and Bandoy, DJ Darwin},
   journal = {xxxx},
   volume  = {},
   number  = {},
   pages   = {},
   year    = {2025},
-  doi     = {10.5281/zenodo.19347475},
-  url     = {https://doi.org/10.5281/zenodo.19347475}
+  doi     = {10.XXXX/XXXXXX},
+  url     = {https://doi.org/10.XXXX/XXXXXX}
 }
 ```
 
